@@ -22,10 +22,7 @@ p.sub{color:var(--muted);margin:0 0 20px}
 #note{color:var(--muted);font-size:.82rem;margin-top:16px;line-height:1.5}
 #stage{display:none;position:fixed;inset:0;background:#000;z-index:10}
 #stage iframe{width:100%;height:100%;border:0;display:block;background:#fff}
-.ctl{position:fixed;top:calc(env(safe-area-inset-top,0px) + 6px);z-index:20;width:30px;height:30px;border-radius:8px;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:15px;line-height:1;cursor:pointer;opacity:.18;transition:opacity .15s}
-.ctl:hover,.ctl:focus{opacity:1}
-#exit{left:6px}
-#fs{left:42px}
+#tap{display:none;position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.75);color:#fff;align-items:center;justify-content:center;text-align:center;font-size:1.2rem;cursor:pointer;padding:20px}
 </style>
 </head>
 <body>
@@ -40,7 +37,7 @@ p.sub{color:var(--muted);margin:0 0 20px}
   </div>
   <input id="file" type="file" accept=".html,.htm,text/html" hidden>
 
-  <p id="note">Filen läses bara i din webbläsare och laddas inte upp någonstans. Medan en fil är öppen går den i helskärm och webbläsaren frågar innan fliken stängs (till exempel med Ctrl+W). Allt måste vara inbäddat i filen, så separata CSS-, JS- och bildfiler fungerar inte.</p>
+  <p id="note">Filen läses bara i din webbläsare och laddas inte upp någonstans. Medan en fil är öppen går den i helskärm och webbläsaren frågar innan fliken stängs (till exempel med Ctrl+W). Ladda om sidan (F5) för att komma tillbaka hit. Allt måste vara inbäddat i filen, så separata CSS-, JS- och bildfiler fungerar inte.</p>
 </main>
 </div>
 
@@ -48,8 +45,7 @@ p.sub{color:var(--muted);margin:0 0 20px}
   <iframe id="frame" allow="fullscreen; autoplay; gamepad; clipboard-read; clipboard-write"
     sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-pointer-lock allow-downloads"></iframe>
 </div>
-<button id="exit" class="ctl" title="Stäng filen" style="display:none">✕</button>
-<button id="fs" class="ctl" title="Helskärm" style="display:none">⛶</button>
+<div id="tap">Tryck var som helst för att gå i helskärm</div>
 
 <script>
 var drop = document.getElementById("drop");
@@ -57,8 +53,7 @@ var input = document.getElementById("file");
 var upload = document.getElementById("upload");
 var stage = document.getElementById("stage");
 var frame = document.getElementById("frame");
-var exitBtn = document.getElementById("exit");
-var fsBtn = document.getElementById("fs");
+var tap = document.getElementById("tap");
 var active = false;
 
 drop.addEventListener("click", function(){ input.click(); });
@@ -96,20 +91,11 @@ document.addEventListener("fullscreenchange", function(){
   }
 });
 
-fsBtn.addEventListener("click", function(){
-  if(document.fullscreenElement){ document.exitFullscreen(); } else { goFullscreen(); }
-});
-
-exitBtn.addEventListener("click", function(){
-  if(!confirm("Stänga filen och gå tillbaka?")) return;
-  active = false;
-  frame.srcdoc = "";
-  stage.style.display = "none";
-  exitBtn.style.display = "none";
-  fsBtn.style.display = "none";
-  upload.style.display = "flex";
-  if(document.fullscreenElement){ document.exitFullscreen(); }
-  document.title = "HTML-visaren";
+// Reserv: om webbläsaren inte tillät automatisk helskärm räcker ett tryck
+tap.addEventListener("click", function(){
+  goFullscreen();
+  tap.style.display = "none";
+  frame.focus();
 });
 
 function openFile(f){
@@ -123,11 +109,12 @@ function openFile(f){
     frame.srcdoc = reader.result;
     upload.style.display = "none";
     stage.style.display = "block";
-    exitBtn.style.display = "block";
-    fsBtn.style.display = "block";
     active = true;
     document.title = f.name;
-    setTimeout(function(){ frame.focus(); }, 100);
+    setTimeout(function(){
+      frame.focus();
+      if(!document.fullscreenElement){ tap.style.display = "flex"; }
+    }, 500);
   };
   reader.readAsText(f);
 }
