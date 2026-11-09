@@ -1,10 +1,13 @@
-# HTML-visaren
+# HTML Viewer
 
-Ladda upp HTML-filer och se dem direkt i webbläsaren. Körs som en Cloudflare Worker.
+Upload HTML files and view them directly in your browser. Runs as a Cloudflare Worker.
 
-## Filer
-- `worker.js` – själva sidan, serveras av Workern
-- `wrangler.toml` – Cloudflare-inställningar (namnet måste vara `html-visare`)
+## Files
+- `worker.js` - the page itself, served by the Worker
+- `wrangler.toml` - Cloudflare settings (the name must be `html-visare`)
 
-## Deploy
-Koppla repot i Cloudflare under Workers & Pages. Eller kör `npx wrangler deploy`.
+## Deployment
+Connect the repository in Cloudflare under Workers & Pages, or run `npx wrangler deploy`.
+
+## Credit
+Made by Alex Ferneborg (https://alexswe.dpdns.org)
